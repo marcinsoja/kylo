@@ -226,6 +226,7 @@ public class UpgradeKyloService {
                                                FeedServicesAccessControl.IMPORT_FEEDS,
                                                FeedServicesAccessControl.EXPORT_FEEDS,
                                                FeedServicesAccessControl.EDIT_CATEGORIES,
+                                               FeedServicesAccessControl.EDIT_DATASOURCES,
                                                FeedServicesAccessControl.EDIT_TEMPLATES,
                                                FeedServicesAccessControl.IMPORT_TEMPLATES,
                                                FeedServicesAccessControl.EXPORT_TEMPLATES,
@@ -236,7 +237,8 @@ public class UpgradeKyloService {
                                                FeedServicesAccessControl.IMPORT_FEEDS,
                                                FeedServicesAccessControl.EXPORT_FEEDS,
                                                FeedServicesAccessControl.EDIT_CATEGORIES,
-                                               FeedServicesAccessControl.ACCESS_TEMPLATES);
+                                               FeedServicesAccessControl.ACCESS_TEMPLATES,
+                                               FeedServicesAccessControl.ACCESS_DATASOURCES);
                             });
         }, MetadataAccess.SERVICE);
     }

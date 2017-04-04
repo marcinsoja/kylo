@@ -20,11 +20,9 @@ package com.thinkbiganalytics.feedmgr.rest.controller;
  * #L%
  */
 
-import com.thinkbiganalytics.feedmgr.security.FeedServicesAccessControl;
-import com.google.common.collect.Collections2;
-import com.thinkbiganalytics.feedmgr.rest.FeedLineageBuilder;
 import com.thinkbiganalytics.feedmgr.rest.Model;
-import com.thinkbiganalytics.feedmgr.security.FeedsAccessControl;
+import com.thinkbiganalytics.feedmgr.security.FeedServicesAccessControl;
+import com.thinkbiganalytics.feedmgr.rest.FeedLineageBuilder;
 import com.thinkbiganalytics.feedmgr.service.datasource.DatasourceModelTransform;
 import com.thinkbiganalytics.feedmgr.service.datasource.DatasourceService;
 import com.thinkbiganalytics.feedmgr.service.security.SecurityService;
@@ -36,7 +34,6 @@ import com.thinkbiganalytics.metadata.api.feed.FeedProvider;
 import com.thinkbiganalytics.metadata.api.op.FeedDependencyDeltaResults;
 import com.thinkbiganalytics.metadata.api.op.FeedOperationsProvider;
 import com.thinkbiganalytics.metadata.core.feed.FeedPreconditionService;
-import com.thinkbiganalytics.metadata.rest.FeedLineageBuilder;
 import com.thinkbiganalytics.metadata.rest.MetadataModelTransform;
 import com.thinkbiganalytics.metadata.rest.model.feed.Feed;
 import com.thinkbiganalytics.metadata.rest.model.feed.FeedCriteria;
@@ -49,7 +46,6 @@ import com.thinkbiganalytics.metadata.rest.model.feed.InitializationStatus;
 import com.thinkbiganalytics.metadata.rest.model.sla.ServiceLevelAssessment;
 import com.thinkbiganalytics.rest.model.RestResponseStatus;
 import com.thinkbiganalytics.security.AccessController;
-import com.thinkbiganalytics.security.action.AllowedActions;
 import com.thinkbiganalytics.security.action.AllowedEntityActionsProvider;
 import com.thinkbiganalytics.security.rest.controller.ActionsModelTransform;
 import com.thinkbiganalytics.security.rest.model.ActionGroup;
@@ -135,6 +131,9 @@ public class FeedsController {
 
     @Inject
     private AccessController accessController;
+
+    @Inject
+    private Model model;
 
     @Inject
     private DatasourceModelTransform datasourceTransform;
@@ -946,7 +945,7 @@ public class FeedsController {
             com.thinkbiganalytics.metadata.api.feed.Feed domainFeed = feedProvider.getFeed(feedProvider.resolveFeed(feedId));
 
             if (domainFeed != null) {
-                FeedLineageBuilder builder = new FeedLineageBuilder(domainFeed);
+                FeedLineageBuilder builder = new FeedLineageBuilder(domainFeed, model, datasourceTransform);
                 Feed feed = builder.build();//Model.DOMAIN_TO_FEED_WITH_DEPENDENCIES.apply(domainFeed);
                 return new FeedLineage(feed, datasourceService.getFeedLineageStyleMap());
             }
