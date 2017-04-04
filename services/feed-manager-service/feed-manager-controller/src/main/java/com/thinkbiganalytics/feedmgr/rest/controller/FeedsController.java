@@ -21,6 +21,11 @@ package com.thinkbiganalytics.feedmgr.rest.controller;
  */
 
 import com.thinkbiganalytics.feedmgr.security.FeedServicesAccessControl;
+import com.google.common.collect.Collections2;
+import com.thinkbiganalytics.feedmgr.rest.FeedLineageBuilder;
+import com.thinkbiganalytics.feedmgr.rest.Model;
+import com.thinkbiganalytics.feedmgr.security.FeedsAccessControl;
+import com.thinkbiganalytics.feedmgr.service.datasource.DatasourceModelTransform;
 import com.thinkbiganalytics.feedmgr.service.datasource.DatasourceService;
 import com.thinkbiganalytics.feedmgr.service.security.SecurityService;
 import com.thinkbiganalytics.feedmgr.sla.ServiceLevelAgreementModelTransform;
@@ -118,10 +123,10 @@ public class FeedsController {
 
     @Inject
     private SecurityService securityService;
-    
+
     @Inject
     private MetadataAccess metadata;
-    
+
     @Inject
     private MetadataModelTransform metadataTransform;
 
@@ -130,8 +135,11 @@ public class FeedsController {
 
     @Inject
     private AccessController accessController;
-    
-    
+
+    @Inject
+    private DatasourceModelTransform datasourceTransform;
+
+
     @GET
     @Path("{id}/actions/available")
     @Produces(MediaType.APPLICATION_JSON)
@@ -146,7 +154,7 @@ public class FeedsController {
         return this.securityService.getAvailableFeedActions(feedIdStr)
                         .orElseThrow(() -> new WebApplicationException("A feed with the given ID does not exist: " + feedIdStr, Status.NOT_FOUND));
     }
-    
+
     @GET
     @Path("{id}/actions/allowed")
     @Produces(MediaType.APPLICATION_JSON)
@@ -159,14 +167,14 @@ public class FeedsController {
                                          @QueryParam("user") Set<String> userNames,
                                          @QueryParam("group") Set<String> groupNames) {
         LOG.debug("Get allowed actions for feed: {}", feedIdStr);
-        
+
         Set<Principal> users = this.actionsTransform.toUserPrincipals(userNames);
         Set<Principal> groups = this.actionsTransform.toGroupPrincipals(groupNames);
 
         return this.securityService.getAllowedFeedActions(feedIdStr, Stream.concat(users.stream(), groups.stream()).collect(Collectors.toSet()))
                         .orElseThrow(() -> new WebApplicationException("A feed with the given ID does not exist: " + feedIdStr, Status.NOT_FOUND));
     }
-    
+
     @POST
     @Path("{id}/actions/allowed")
     @Consumes(MediaType.APPLICATION_JSON)
@@ -204,8 +212,8 @@ public class FeedsController {
         Set<Principal> users = this.actionsTransform.toUserPrincipals(userNames);
         Set<Principal> groups = this.actionsTransform.toGroupPrincipals(groupNames);
 
-        return this.securityService.createFeedPermissionChange(feedIdStr, 
-                                                               ChangeType.valueOf(changeType.toUpperCase()), 
+        return this.securityService.createFeedPermissionChange(feedIdStr,
+                                                               ChangeType.valueOf(changeType.toUpperCase()),
                                                                Stream.concat(users.stream(), groups.stream()).collect(Collectors.toSet()))
                         .orElseThrow(() -> new WebApplicationException("A feed with the given ID does not exist: " + feedIdStr, Status.NOT_FOUND));
     }

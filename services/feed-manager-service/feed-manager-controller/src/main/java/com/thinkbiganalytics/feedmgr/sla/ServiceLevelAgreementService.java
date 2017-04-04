@@ -68,6 +68,8 @@ public class ServiceLevelAgreementService implements ServicesApplicationStartupL
     private FeedManagerFeedService feedManagerFeedService;
     @Inject
     private FeedProvider feedProvider;
+    @Inject
+    private ServiceLevelAgreementModelTransform serviceLevelAgreementTransform;
 
 
     private List<ServiceLevelAgreementRule> serviceLevelAgreementRules;
@@ -103,7 +105,7 @@ public class ServiceLevelAgreementService implements ServicesApplicationStartupL
 
             List<FeedServiceLevelAgreement> agreements = feedSlaProvider.findAllAgreements();
             if (agreements != null) {
-                return ServiceLevelAgreementModelTransform.transformFeedServiceLevelAgreements(agreements);
+                return serviceLevelAgreementTransform.transformFeedServiceLevelAgreements(agreements);
             }
             return null;
 
@@ -151,7 +153,7 @@ public class ServiceLevelAgreementService implements ServicesApplicationStartupL
             Feed.ID id = feedProvider.resolveFeed(feedId);
             List<FeedServiceLevelAgreement> agreements = feedSlaProvider.findFeedServiceLevelAgreements(id);
             if (agreements != null) {
-                return ServiceLevelAgreementModelTransform.transformFeedServiceLevelAgreements(agreements);
+                return serviceLevelAgreementTransform.transformFeedServiceLevelAgreements(agreements);
             }
             return null;
 
@@ -166,7 +168,7 @@ public class ServiceLevelAgreementService implements ServicesApplicationStartupL
 
             FeedServiceLevelAgreement agreement = feedSlaProvider.findAgreement(slaProvider.resolve(slaId));
             if (agreement != null) {
-                com.thinkbiganalytics.metadata.rest.model.sla.FeedServiceLevelAgreement modelSla = ServiceLevelAgreementModelTransform.toModel(agreement, true);
+                com.thinkbiganalytics.metadata.rest.model.sla.FeedServiceLevelAgreement modelSla = serviceLevelAgreementTransform.toModel(agreement, true);
                 ServiceLevelAgreementMetricTransformerHelper transformer = new ServiceLevelAgreementMetricTransformerHelper();
                 ServiceLevelAgreementGroup serviceLevelAgreementGroup = transformer.toServiceLevelAgreementGroup(modelSla);
                 feedManagerFeedService
@@ -284,7 +286,7 @@ public class ServiceLevelAgreementService implements ServicesApplicationStartupL
                 }
                 //relate them
                 feedSlaProvider.relateFeeds(savedSla, slaFeeds);
-                com.thinkbiganalytics.metadata.rest.model.sla.FeedServiceLevelAgreement restModel = ServiceLevelAgreementModelTransform.toModel(savedSla, slaFeeds, true);
+                com.thinkbiganalytics.metadata.rest.model.sla.FeedServiceLevelAgreement restModel = serviceLevelAgreementTransform.toModel(savedSla, slaFeeds, true);
                 //schedule it
                 serviceLevelAgreementScheduler.scheduleServiceLevelAgreement(savedSla);
                 return restModel;
