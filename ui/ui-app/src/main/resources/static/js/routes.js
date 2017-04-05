@@ -550,8 +550,7 @@ define(['angular', 'kylo-common', 'kylo-services',
                                  }
                              }
                              else {
-                                 console.log('transitiong to ',trans, trans.to())
-                                 defer.resolve($state.target(trans.to()).name, trans.to(),trans.to().params());
+                                 defer.resolve($state.target(trans.to().name, trans.params()));
                              }
                          });
                          return defer.promise;
