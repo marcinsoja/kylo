@@ -26,6 +26,7 @@ import com.thinkbiganalytics.feedmgr.rest.model.RegisteredTemplate;
 import com.thinkbiganalytics.feedmgr.rest.model.RegisteredTemplateRequest;
 import com.thinkbiganalytics.feedmgr.rest.model.ReusableTemplateConnectionInfo;
 import com.thinkbiganalytics.feedmgr.security.FeedServicesAccessControl;
+import com.thinkbiganalytics.feedmgr.service.security.SecurityService;
 import com.thinkbiganalytics.metadata.api.MetadataAccess;
 import com.thinkbiganalytics.metadata.api.event.MetadataChange;
 import com.thinkbiganalytics.metadata.api.event.MetadataEventService;
@@ -107,6 +108,9 @@ public class DefaultFeedManagerTemplateService  implements FeedManagerTemplateSe
     @Inject
     RegisteredTemplateUtil registeredTemplateUtil;
 
+    @Inject
+    private SecurityService securityService;
+
     protected RegisteredTemplate saveRegisteredTemplate(final RegisteredTemplate registeredTemplate) {
        return registeredTemplateService.saveRegisteredTemplate(registeredTemplate);
 
@@ -169,6 +173,10 @@ public class DefaultFeedManagerTemplateService  implements FeedManagerTemplateSe
         boolean isNew = StringUtils.isBlank(registeredTemplate.getId());
         RegisteredTemplate template = saveRegisteredTemplate(registeredTemplate);
         nifiFlowCache.updateRegisteredTemplate(template);
+        //update the access control
+        registeredTemplate.toRoleMembershipChangeList().stream().forEach(roleMembershipChange -> securityService.changeTemplateRoleMemberships(template.getId(),roleMembershipChange));
+
+
         //notify audit of the change
 
         FeedManagerTemplate.State state = FeedManagerTemplate.State.valueOf(template.getState());

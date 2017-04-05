@@ -22,7 +22,6 @@ package com.thinkbiganalytics.feedmgr.rest.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.thinkbiganalytics.feedmgr.rest.model.json.UserPropertyDeserializer;
@@ -47,7 +46,7 @@ import java.util.stream.Collectors;
  * The specification for a feed and how it should interact with various components.
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class FeedMetadata implements UIFeed {
+public class FeedMetadata extends EntityAccessControl implements UIFeed {
 
     boolean isNew = false;
     private String id;
@@ -132,19 +131,9 @@ public class FeedMetadata implements UIFeed {
      * List of feed IDs dependent on this feed
      */
     private List<FeedSummary> usedByFeeds;
-    
-    private ActionGroup allowedActions;
 
 
     public FeedMetadata() {
-    }
-
-    public ActionGroup getAllowedActions() {
-        return allowedActions;
-    }
-    
-    public void setAllowedActions(ActionGroup allowedActions) {
-        this.allowedActions = allowedActions;
     }
 
     public String getTemplateId() {
