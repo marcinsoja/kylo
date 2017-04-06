@@ -17,6 +17,7 @@
 -- limitations under the License.
 -- #L%
 -- -
+
 CREATE PROCEDURE delete_feed_jobs(in category varchar(255), in feed varchar(255), out res integer)
 BEGIN
 

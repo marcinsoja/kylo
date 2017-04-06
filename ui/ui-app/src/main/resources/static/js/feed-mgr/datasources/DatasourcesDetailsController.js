@@ -22,6 +22,18 @@ define(["angular", "feed-mgr/datasources/module-name"], function (angular, modul
         self.allowEdit = false;
 
         /**
+         * Angular Materials form.
+         * @type {Object}
+         */
+        self.datasourceForm = {};
+
+        /**
+         * The set of existing data source names.
+         * @type {Object.<string, boolean>}
+         */
+        self.existingDatasourceNames = {};
+
+        /**
          * Indicates if the data source is currently being loaded.
          * @type {boolean} {@code true} if the data source is being loaded, or {@code false} if it has finished loading
          */
@@ -67,24 +79,35 @@ define(["angular", "feed-mgr/datasources/module-name"], function (angular, modul
          * Deletes the current data source.
          */
         self.onDelete = function () {
-            DatasourcesService.deleteById(self.model.id)
-                .then(function () {
-                    $mdToast.show(
-                        $mdToast.simple()
-                            .textContent("Successfully deleted the data source " + self.model.name + ".")
-                            .hideDelay(3000)
-                    );
-                    StateService.FeedManager().Datasource().navigateToDatasources();
-                }, function (err) {
-                    $mdDialog.show(
-                        $mdDialog.alert()
-                            .clickOutsideToClose(true)
-                            .title("Delete Failed")
-                            .textContent("The data source '" + self.model.name + "' could not be deleted. " + err.data.message)
-                            .ariaLabel("Failed to delete data source")
-                            .ok("Got it!")
-                    );
-                });
+            if (!angular.isArray(self.model.sourceForFeeds) || self.model.sourceForFeeds.length === 0) {
+                DatasourcesService.deleteById(self.model.id)
+                    .then(function () {
+                        $mdToast.show(
+                            $mdToast.simple()
+                                .textContent("Successfully deleted the data source " + self.model.name + ".")
+                                .hideDelay(3000)
+                        );
+                        StateService.FeedManager().Datasource().navigateToDatasources();
+                    }, function (err) {
+                        $mdDialog.show(
+                            $mdDialog.alert()
+                                .clickOutsideToClose(true)
+                                .title("Delete Failed")
+                                .textContent("The data source '" + self.model.name + "' could not be deleted." + err.data.message)
+                                .ariaLabel("Failed to delete data source")
+                                .ok("Got it!")
+                        );
+                    });
+            } else {
+                $mdDialog.show(
+                    $mdDialog.alert()
+                        .clickOutsideToClose(true)
+                        .title("Delete Failed")
+                        .textContent("This data source is currently being used by " + self.model.sourceForFeeds.length + " feed(s).")
+                        .ariaLabel("Failed to delete data source")
+                        .ok("Got it!")
+                );
+            }
         };
 
         /**
@@ -120,6 +143,15 @@ define(["angular", "feed-mgr/datasources/module-name"], function (angular, modul
                 });
         };
 
+        /**
+         * Validates the edit form.
+         */
+        self.validate = function () {
+            if (angular.isDefined(self.datasourceForm["datasourceName"])) {
+                self.datasourceForm["datasourceName"].$setValidity("notUnique", angular.isUndefined(self.existingDatasourceNames[self.editModel.name.toLowerCase()]));
+            }
+        };
+
         // Fetch allowed permissions
         AccessControlService.getAllowedActions()
             .then(function (actionSet) {
@@ -140,6 +172,24 @@ define(["angular", "feed-mgr/datasources/module-name"], function (angular, modul
             self.isEditable = true;
             self.loading = false;
         }
+
+        // Watch for changes to data source name
+        $scope.$watch(function () {
+            return self.editModel.name;
+        }, function () {
+            if (_.isEmpty(self.existingDatasourceNames)) {
+                DatasourcesService.findAll()
+                    .then(function (datasources) {
+                        self.existingDatasourceNames = {};
+                        angular.forEach(datasources, function (datasource) {
+                            self.existingDatasourceNames[datasource.name.toLowerCase()] = true;
+                        });
+                    })
+                    .then(self.validate);
+            } else {
+                self.validate();
+            }
+        });
     }
 
     angular.module(moduleName).controller("DatasourcesDetailsController", ["$scope", "$mdDialog", "$mdToast", "$transition$", "AccessControlService", "DatasourcesService", "StateService",

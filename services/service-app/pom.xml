@@ -462,6 +462,11 @@
       <artifactId>liquibase-core</artifactId>
       <version>${liquibase.version}</version>
     </dependency>
+    <dependency>
+      <groupId>org.yaml</groupId>
+      <artifactId>snakeyaml</artifactId>
+      <version>1.18</version>
+    </dependency>
 
   </dependencies>
 
@@ -495,6 +500,52 @@
           </execution>
         </executions>
       </plugin>
+
+      <plugin>
+        <!-- Liquibase plugin for quick testing of database upgrades with following command
+             mvn package liquibase:updateSQL -->
+
+        <groupId>org.liquibase</groupId>
+        <artifactId>liquibase-maven-plugin</artifactId>
+        <version>${liquibase.version}</version>
+        <configuration>
+          <changeLogFile>src/main/resources/com/thinkbiganalytics/db/master.xml</changeLogFile>
+          <driver>org.mariadb.jdbc.Driver</driver>
+          <url>jdbc:mysql://localhost:3306/kylo</url>
+          <username>root</username>
+          <password>hadoop</password>
+          <verbose>true</verbose>
+          <logging>debug</logging>
+        </configuration>
+        <dependencies>
+          <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <version>42.0.0</version>
+          </dependency>
+          <dependency>
+            <groupId>org.liquibase</groupId>
+            <artifactId>liquibase-core</artifactId>
+            <version>${liquibase.version}</version>
+          </dependency>
+          <dependency>
+            <groupId>org.javassist</groupId>
+            <artifactId>javassist</artifactId>
+            <version>3.18.2-GA</version>
+          </dependency>
+          <dependency>
+            <groupId>org.liquibase.ext</groupId>
+            <artifactId>liquibase-hibernate4</artifactId>
+            <version>${liquibase-hibernate4.version}</version>
+          </dependency>
+          <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-jpa</artifactId>
+            <version>1.4.2.RELEASE</version>
+          </dependency>
+        </dependencies>
+      </plugin>
+
     </plugins>
   </build>
 
