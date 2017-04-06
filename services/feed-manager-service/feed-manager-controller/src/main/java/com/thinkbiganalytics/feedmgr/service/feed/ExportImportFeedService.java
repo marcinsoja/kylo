@@ -141,7 +141,7 @@ public class ExportImportFeedService {
             )
             .orElse(null);
         if (userDatasources != null && !userDatasources.isEmpty()) {
-            this.accessController.checkPermission(AccessController.SERVICES, FeedsAccessControl.ACCESS_DATASOURCES);
+            this.accessController.checkPermission(AccessController.SERVICES, FeedServicesAccessControl.ACCESS_DATASOURCES);
             feed.setUserDatasources(userDatasources);
         }
 
